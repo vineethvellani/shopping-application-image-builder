@@ -1,0 +1,42 @@
+---
+
+name: "building shopping application image"
+
+on:
+
+  workflow_dispatch:
+
+jobs:
+
+  image-build-job:
+
+    name: "build ami with packer"
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID:  ${{ secrets.access_key }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.secret_key }}
+      AWS_DEFAULT_REGION: "ap-south-1"
+      PACKER_VERSION: "1.14.2"
+    steps:
+      - name: "repo checkout"
+        uses: actions/checkout@v5
+
+
+      - name: "set up packer"
+        uses: hashicorp/setup-packer@main
+        with:
+          version: ${{ env.PACKER_VERSION }}
+
+
+      - name: " initalizaling packer "
+        run: packer init .
+        working-directory: ./packer/
+
+
+      - name: "packer validate"
+        run: packer validate .
+        working-directory: ./packer/
+
+      - name: "build packer image"
+        run: packer build .
+        working-directory: ./packer/  
